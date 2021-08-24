@@ -1,0 +1,181 @@
+<div class="main">
+    <div class="card-header d-flex justify-content-between">
+        <h1 class="m-2">Lista de Contatos</h1>
+    </div>
+    <nav class="navbar navbar-light bg-light m-2 rounded" style="width:100%">
+        <form class="form-inline mx-2" style="width:100%">
+          <input style="width:calc(100% - 56px)" [(ngModel)]="searchTerm" mdbInput class="form-control mr-sm-2" type="search" placeholder="Pesquisar" aria-label="Search" id="searchTerm" name="searchTerm">
+          <button style="width:48px" class="btn btn-outline-success my-2 my-sm-0" (click)="searchContatos()"><i class="bi bi-search"></i></button>
+        </form>
+      </nav>
+    <div class="row d-flex flex-row-reverse mx-2 ">
+        <nav aria-label="Page navigation example">
+        <ul class="pagination mx-2 mb-0 float-right pagination-sm">
+          <li class="page-item" [class.disabled]="pagination.current === 1">
+            <a class="page-link" href="#" aria-label="Previous" (click)="previousPage()">
+              <span aria-hidden="true">&laquo;</span>
+              <span class="sr-only">Previous</span>
+            </a>
+          </li>
+          <div *ngFor="let item of [].constructor(pagination.totalPages); let i = index">
+            <li class="page-item" [class.active]="pagination.current === i+1"><a class="page-link" href="#" (click)="setPage(i+1)">{{i+1}}</a></li>   
+          </div>
+          <li class="page-item" [class.disabled]="pagination.current === pagination.totalPages">
+            <a class="page-link" href="#" aria-label="Next"  (click)="nextPage()">
+              <span aria-hidden="true">&raquo;</span>
+              <span class="sr-only">Next</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+      <button 
+        class="btn btn-success btn-sm" 
+        type="button" 
+        (click)="openModal(newModal,0,'new');"
+        >
+        <i class="bi bi-plus-circle"></i>
+            Novo Contato
+        </button>
+    </div>
+    <div class="row itemsBlock m-2">
+        <div *ngFor="let item of items; let i = index" class="col-md-4 col-sm-6 col-12 p-2">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between">
+                    {{item.nome}}
+                    <div>
+                        <a href="#"
+                            class="btn btn-info btn-sm mx-1" 
+                            type="button" 
+                            (click)="openModal(detailModal,i,'detail');"
+                        >
+                            <i class="bi bi-info-circle" data-toggle="tooltip" title="Detalhes"></i>
+                        </a>
+
+                        <a href="#" class="btn btn-primary btn-sm mx-1" (click)="openModal(editModal,i,'edit');">
+                            <i class="bi bi-pencil-square" data-toggle="tooltip" title="Editar"></i>
+                        </a>
+
+                        <a href="#" class="btn btn-danger btn-sm mx-1" (click)="deleteContato(i);">
+                            <i class="bi bi-trash" data-toggle="tooltip" title="Apagar"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">Email: {{item.email}}</h5>
+                    <h6 class="card-subtitle mb-2 text-muted">Telefone: {{item.telefone}}</h6>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <ng-template #newModal let-modal>
+        <div>
+                <div class="modal-dialog m-0" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                    <h5 class="modal-title">Novo Contato</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" (click)="modal.dismiss()">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    </div>
+                    <div class="modal-body md-form">
+                    <label for="new_nome" >Nome</label>
+                    <input mdbInput type="text" name="new_nome" [(ngModel)]="selectedContato.nome" id="new_nome" class="form-control">
+    
+                    <label for="new_email" >Email</label>
+                    <input mdbInput type="text" name="new_email" [(ngModel)]="selectedContato.email" id="new_email" class="form-control">
+    
+                    <label for="new_telefone" >Telefone</label>
+                    <input mdbInput type="text" name="new_telefone" [(ngModel)]="selectedContato.telefone" id="new_telefone" class="form-control">
+    
+                    <label for="new_dataNascimento" >Nascido em</label>
+                        <input 
+                            type="date" 
+                            name="new_dataNascimento" 
+                            type="date"  
+                            [ngModel]="selectedContato.dataNascimentoString | date:'yyyy-MM-dd'"  
+                            (ngModelChange)="selectedContato.dataNascimentoString = $event"   
+                            id="new_dataNascimento" 
+                            placeholder="yyyy-mm-dd" 
+                            class="form-control"
+                        />
+    
+                    <label for="new_observacoes" >Observações</label>
+                    <input mdbInput type="text" name="new_observacoes" [(ngModel)]="selectedContato.observacoes" id="new_observacoes" class="form-control">
+                    </div>
+                    <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" (click)="postContato();modal.dismiss();">Salvar</button>
+                    <button type="button" class="btn btn-secondary" (click)="modal.dismiss()">Cancelar</button>
+                    </div>
+                </div>
+                </div>
+        </div>
+    </ng-template>
+
+    <ng-template #editModal let-modal>
+    <div>
+            <div class="modal-dialog m-0" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title">Editar Contato</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" (click)="modal.dismiss()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                </div>
+                <div class="modal-body md-form">
+                <label for="edit_nome" >Nome</label>
+                <input mdbInput type="text" name="edit_nome" [(ngModel)]="selectedContato.nome" id="edit_nome" class="form-control">
+
+                <label for="edit_email" >Email</label>
+                <input mdbInput type="text" name="edit_email" [(ngModel)]="selectedContato.email" id="edit_email" class="form-control">
+
+                <label for="edit_telefone" >Telefone</label>
+                <input mdbInput type="text" name="edit_telefone" [(ngModel)]="selectedContato.telefone" id="edit_telefone" class="form-control">
+
+                <label for="edit_dataNascimento" >Nascido em</label>
+                    <input 
+                        type="date" 
+                        name="edit_dataNascimento" 
+                        type="date"  
+                        [ngModel]="selectedContato.dataNascimentoString | date:'yyyy-MM-dd'"  
+                        (ngModelChange)="selectedContato.dataNascimentoString = $event"   
+                        id="edit_dataNascimento" 
+                        placeholder="yyyy-mm-dd" 
+                        class="form-control"
+                    />
+
+                <label for="edit_observacoes" >Observações</label>
+                <input mdbInput type="text" name="edit_observacoes" [(ngModel)]="selectedContato.observacoes" id="edit_observacoes" class="form-control">
+                </div>
+                <div class="modal-footer">
+                <button type="button" class="btn btn-primary" (click)="patchContato();modal.dismiss();">Salvar</button>
+                <button type="button" class="btn btn-secondary" (click)="modal.dismiss()">Cancelar</button>
+                </div>
+            </div>
+            </div>
+    </div>
+    </ng-template>
+
+    <ng-template #detailModal let-modal>
+        <div>
+            <div class="modal-dialog m-0" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title">Detalhes do Contato</h5>
+                <button class="close" (click)="modal.dismiss()" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                </div>
+
+                <div class="modal-body">
+                    <h5 class="card-title">Nome: {{selectedContato.nome}}</h5>
+                    <p class="card-text mb-2">Email: {{selectedContato.email}}</p>
+                    <p class="card-text mb-2">Telefone: {{selectedContato.telefone}}</p>
+                    <p class="card-text mb-2">Nascido em: {{selectedContato.dataNascimentoString}}</p>
+                    <p class="card-text mb-2">Observacões: {{selectedContato.observacoes}}</p>
+                </div>
+            </div>
+            </div>
+        </div>
+    </ng-template>
+  </div>
